@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Task Manager</string>
+    <string name="home_title">Home</string>
+    <string name="routine_entry_title">Routine</string>
 </resources>
