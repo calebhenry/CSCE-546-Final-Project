@@ -17,11 +17,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.taskmanager.ui.home.HomeDestination
 import com.example.taskmanager.ui.home.HomeScreen
-import com.example.taskmanager.ui.routine.RoutineEntryDestination
-import com.example.taskmanager.ui.routine.RoutineEntryScreen
+import com.example.taskmanager.ui.routine.TaskEntryDestination
+import com.example.taskmanager.ui.routine.TaskEntryScreen
 
 @Composable
-fun GymNavHost(
+fun TaskNavHost(
     navController: NavHostController = rememberNavController(),
     modifier: Modifier = Modifier
 ) {
@@ -33,13 +33,13 @@ fun GymNavHost(
             route = HomeDestination.route
         ) {
             HomeScreen(
-                navigateToRoutineEntry = {navController.navigate("routine entry")}
+                navigateToRoutineEntry = {navController.navigate("task entry")}
             )
         }
         composable(
-            route = RoutineEntryDestination.route
+            route = TaskEntryDestination.route
         ) {
-            RoutineEntryScreen(
+            TaskEntryScreen(
                 navigateBack = { navController.popBackStack() },
                 navigateUp = { navController.navigateUp() }
             )

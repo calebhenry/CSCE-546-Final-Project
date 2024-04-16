@@ -5,17 +5,17 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [Routine::class], version = 1, exportSchema = false)
-abstract class RoutineDatabase : RoomDatabase() {
-    abstract fun routineDao(): RoutineDao
+@Database(entities = [Task::class], version = 4, exportSchema = false)
+abstract class TaskDatabase : RoomDatabase() {
+    abstract fun taskDao(): TaskDao
 
     companion object {
         @Volatile
-        private var Instance: RoutineDatabase? = null
+        private var Instance: TaskDatabase? = null
 
-        fun getDatabase(context: Context): RoutineDatabase {
+        fun getDatabase(context: Context): TaskDatabase {
             return Instance ?: synchronized(this) {
-                Room.databaseBuilder(context, RoutineDatabase::class.java, "routine_database")
+                Room.databaseBuilder(context, TaskDatabase::class.java, "routine_database")
                     .fallbackToDestructiveMigration()
                     .build()
                     .also { Instance = it }

@@ -6,18 +6,18 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.taskmanager.TaskManagerApplication
 import com.example.taskmanager.ui.home.HomeViewModel
-import com.example.taskmanager.ui.routine.RoutineEntryViewModel
+import com.example.taskmanager.ui.routine.TaskEntryViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
-            HomeViewModel(gymApplication().container.routinesRepository)
+            HomeViewModel(taskApplication().container.taskRepository)
         }
         initializer {
-            RoutineEntryViewModel(gymApplication().container.routinesRepository)
+            TaskEntryViewModel(taskApplication().container.taskRepository)
         }
     }
 }
 
-fun CreationExtras.gymApplication(): TaskManagerApplication =
+fun CreationExtras.taskApplication(): TaskManagerApplication =
     (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as TaskManagerApplication)
