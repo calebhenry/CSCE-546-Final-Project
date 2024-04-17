@@ -1,18 +1,21 @@
 package com.example.taskmanager.ui.home
 
 import android.app.Activity
-import androidx.annotation.DimenRes
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -44,12 +47,17 @@ import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Divider
 import androidx.compose.ui.graphics.Color
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 object HomeDestination : NavigationDestination {
     override val route = "home"
     override val titleRes = R.string.home_title
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeScreen(
     navigateToRoutineEntry: () -> Unit,
@@ -58,6 +66,8 @@ fun HomeScreen(
 ) {
     val uiState = viewModel.homeUiState.collectAsState()
     val tasks = uiState.value.taskList
+    val groupedCompleteTasks = tasks.filter { it.taskCompletion }.sortedBy { it.dueDate }.groupBy { convertMillisToString(it.dueDate) }
+    val groupedIncompleteTasks = tasks.filter { !it.taskCompletion }.sortedBy { it.dueDate }.groupBy { convertMillisToString(it.dueDate) }
     val activity = LocalContext.current as Activity
 
     var showCompletedTasks by remember { mutableStateOf(false) }
@@ -84,45 +94,81 @@ fun HomeScreen(
         }
     ) { innerPadding ->
         Column {
-            // Incomplete tasks
             LazyColumn (
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier.padding(innerPadding),
             ) {
-                items(tasks.filter { !it.taskCompletion }) { task ->
-                    RoutineCard(
-                        task = task,
-                        onRoutineClick = {},
-                        completeTask = { isComplete -> viewModel.handleCheck(complete = isComplete, task = task) }
-                    )
-                }
-            }
-            Divider(
-                color = Color.LightGray,
-                modifier = Modifier.padding(0.dp, 20.dp)
-            )
-            Row (verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "Completed",
-                    modifier = Modifier.padding(20.dp, 0.dp)
-                )
-                Spacer(Modifier.weight(1f))
-                ItemButton(
-                    expanded = showCompletedTasks, 
-                    onClick = { showCompletedTasks = !showCompletedTasks }
-                )
-            }
-            if(showCompletedTasks) {
-                LazyColumn {
-                    items(tasks.filter { it.taskCompletion }) { task ->
+                groupedIncompleteTasks.forEach { (date, tasks) ->
+                    item {
+                        Box (
+                            Modifier
+                                .padding(8.dp)
+                                .align(Alignment.CenterHorizontally)
+                        ) {
+                            Box(
+                                modifier = Modifier.background(Color.LightGray, MaterialTheme.shapes.large)
+                            ) {
+                                Text(
+                                    text = date,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.padding(4.dp)
+                                )
+                            }
+                        }
+                    }
+                    items(tasks) { task ->
                         RoutineCard(
                             task = task,
                             onRoutineClick = {},
                             completeTask = { isComplete -> viewModel.handleCheck(complete = isComplete, task = task) }
                         )
                     }
-                } 
+                }
+                item {
+                    Divider(
+                        color = Color.LightGray,
+                        modifier = Modifier.padding(0.dp, 20.dp)
+
+                    )
+                    Column (modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "Completed",
+                            modifier = Modifier.padding(8.dp, 0.dp)
+                        )
+                        ItemButton(
+                            expanded = showCompletedTasks,
+                            onClick = { showCompletedTasks = !showCompletedTasks }
+                        )
+                    }
+                }
+                if(showCompletedTasks) {
+                    groupedCompleteTasks.forEach { (date, tasks) ->
+                        item {
+                            Box (
+                                Modifier
+                                    .padding(8.dp)
+                                    .align(Alignment.CenterHorizontally)
+                            ) {
+                                Box(
+                                    modifier = Modifier.background(Color.LightGray, MaterialTheme.shapes.large)
+                                ) {
+                                    Text(
+                                        text = date,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.padding(4.dp)
+                                    )
+                                }
+                            }
+                        }
+                        items(tasks) { task ->
+                            RoutineCard(
+                                task = task,
+                                onRoutineClick = {},
+                                completeTask = { isComplete -> viewModel.handleCheck(complete = isComplete, task = task) }
+                            )
+                        }
+                    }
+                }
             }
-            
         }
     }
 }
@@ -145,6 +191,7 @@ private fun ItemButton(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoutineCard(
@@ -168,7 +215,8 @@ fun RoutineCard(
             )
             Column (
                 modifier = Modifier
-                    .height(100.dp)
+                    //.height(150.dp)
+                    .fillMaxWidth()
             ) {
                 Text(
                     text = task.taskName,
@@ -188,4 +236,12 @@ fun RoutineCard(
         }
 
     }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun convertMillisToString(millis: Long): String {
+    val instant = Instant.ofEpochMilli(millis)
+    val zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.of("Z"))
+    val formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy")
+    return formatter.format(zonedDateTime)
 }

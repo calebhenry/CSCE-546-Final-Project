@@ -1,5 +1,7 @@
 package com.example.taskmanager.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -20,6 +22,7 @@ import com.example.taskmanager.ui.home.HomeScreen
 import com.example.taskmanager.ui.routine.TaskEntryDestination
 import com.example.taskmanager.ui.routine.TaskEntryScreen
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TaskNavHost(
     navController: NavHostController = rememberNavController(),
