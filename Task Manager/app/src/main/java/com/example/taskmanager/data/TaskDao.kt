@@ -16,8 +16,20 @@ interface TaskDao {
     suspend fun update(task: Task)
 
     @Query("SELECT * from tasks where id = :id")
-    fun getTask(id: Int): Flow<Task>
+    fun getTask(id: Long): Flow<Task>
 
     @Query("SELECT * from tasks ORDER BY task_name ASC")
     fun getAllTasks(): Flow<List<Task>>
+
+    @Query("SELECT task_name from tasks where id = :id")
+    fun getTaskName(id: Long): String
+
+    @Query("SELECT description from tasks where id = :id")
+    fun getTaskDescription(id: Long): String
+
+    @Query("SELECT completed from tasks where id = :id")
+    fun getTaskCompletion(id: Long): Boolean
+
+    @Query("SELECT due_date from tasks where id = :id")
+    fun getTaskDueDate(id: Long): Long
 }

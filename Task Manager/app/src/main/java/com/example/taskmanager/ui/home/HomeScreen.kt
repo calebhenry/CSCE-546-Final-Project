@@ -61,6 +61,7 @@ object HomeDestination : NavigationDestination {
 @Composable
 fun HomeScreen(
     navigateToRoutineEntry: () -> Unit,
+    navigateToTaskScreen: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
@@ -118,7 +119,7 @@ fun HomeScreen(
                     items(tasks) { task ->
                         RoutineCard(
                             task = task,
-                            onRoutineClick = {},
+                            onRoutineClick = { navigateToTaskScreen() },
                             completeTask = { isComplete -> viewModel.handleCheck(complete = isComplete, task = task) }
                         )
                     }
@@ -162,7 +163,7 @@ fun HomeScreen(
                         items(tasks) { task ->
                             RoutineCard(
                                 task = task,
-                                onRoutineClick = {},
+                                onRoutineClick = { navigateToTaskScreen() },
                                 completeTask = { isComplete -> viewModel.handleCheck(complete = isComplete, task = task) }
                             )
                         }

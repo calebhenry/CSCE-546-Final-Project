@@ -21,6 +21,8 @@ import com.example.taskmanager.ui.home.HomeDestination
 import com.example.taskmanager.ui.home.HomeScreen
 import com.example.taskmanager.ui.routine.TaskEntryDestination
 import com.example.taskmanager.ui.routine.TaskEntryScreen
+import com.example.taskmanager.ui.view.TaskScreen
+import com.example.taskmanager.ui.view.TaskScreenDestination
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -36,7 +38,8 @@ fun TaskNavHost(
             route = HomeDestination.route
         ) {
             HomeScreen(
-                navigateToRoutineEntry = {navController.navigate("task entry")}
+                navigateToRoutineEntry = {navController.navigate("task entry")},
+                navigateToTaskScreen = {navController.navigate("task screen")}
             )
         }
         composable(
@@ -45,6 +48,13 @@ fun TaskNavHost(
             TaskEntryScreen(
                 navigateBack = { navController.popBackStack() },
                 navigateUp = { navController.navigateUp() }
+            )
+        }
+        composable (
+            route = TaskScreenDestination.route
+        ) {
+            TaskScreen(
+                navigateBack = { navController.popBackStack() }
             )
         }
     }
