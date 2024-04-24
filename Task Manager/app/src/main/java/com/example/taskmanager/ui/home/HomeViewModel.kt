@@ -1,7 +1,13 @@
 package com.example.taskmanager.ui.home
 
+import android.content.Context
+import android.content.Intent
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.taskmanager.data.DateUtils
 import com.example.taskmanager.data.Task
 import com.example.taskmanager.data.TaskRepository
 import kotlinx.coroutines.flow.SharingStarted
@@ -9,6 +15,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Date
 
 class HomeViewModel(
     private val taskRepository: TaskRepository
@@ -20,6 +32,43 @@ class HomeViewModel(
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
                 initialValue = HomeUiState()
             )
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun shareTasks(context: Context) {
+        val numTasks = getNumTasksForDay()
+        val numTasksCompeleted = getNumCompletedTasksForDay()
+        val message = "I had $numTasks tasks to complete today, and I completed " +
+                if(numTasks == numTasksCompeleted) " all of them!" else "$numTasksCompeleted of them."
+
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, message)
+        }
+        context.startActivity(
+            Intent.createChooser(
+                intent,
+                "Completion Report"
+            )
+        )
+    }
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun getNumTasksForDay(): Int {
+        val date = SimpleDateFormat("MM-dd-yyy").format(Date())
+        val list = homeUiState.value.taskList.filter {
+            DateUtils.convertMillisToString(it.dueDate) == date
+        }
+        return list.size
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun getNumCompletedTasksForDay(): Int {
+        val date = SimpleDateFormat("MM-dd-yyy").format(Date())
+        val list = homeUiState.value.taskList.filter {
+            DateUtils.convertMillisToString(it.dueDate) == date && it.taskCompletion
+        }
+        return list.size
+    }
 
     fun handleCheck(complete: Boolean, task: Task) {
         viewModelScope.launch {

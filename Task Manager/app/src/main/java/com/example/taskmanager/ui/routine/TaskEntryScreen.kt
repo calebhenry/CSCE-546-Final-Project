@@ -1,14 +1,25 @@
 package com.example.taskmanager.ui.routine
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -31,12 +42,14 @@ import com.example.taskmanager.ui.AppViewModelProvider
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.example.taskmanager.data.DateUtils
 
 object TaskEntryDestination : NavigationDestination {
     override val route = "task entry"
     override val titleRes = R.string.task_entry_title
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TaskEntryScreen(
     navigateBack: () -> Unit,
@@ -80,6 +93,7 @@ fun TaskEntryScreen(
 
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskEntryBody(
@@ -117,14 +131,35 @@ fun TaskEntryBody(
             ),
             modifier = Modifier.fillMaxWidth()
         )
-        Button(
-            onClick = { isDatePickerOpen = true },
-            modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.small
-        ) {
-            Text(text = "Select Due Date")
-        }
+        if(task.dueDate == 0L) {
+            Button(
+                onClick = { isDatePickerOpen = true },
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.small
+            ) {
+                Text(text = "Select Due Date")
+            }
+        } else {
+            Row (
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = DateUtils.convertMillisToString(task.dueDate))
+                Button(
+                    onClick = { isDatePickerOpen = true },
+                    contentPadding = PaddingValues(0.dp),
+                    shape = CircleShape,
+                    modifier = Modifier.width(40.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Edit,
+                        contentDescription = "Edit",
+                    )
+                }
+            }
 
+        }
         if(isDatePickerOpen) {
             DatePickerDialog(
                 onDismissRequest = { isDatePickerOpen = false },
@@ -146,7 +181,7 @@ fun TaskEntryBody(
                 DatePicker(state = datePickerState)
             }
         }
-        
+
         Button(
             onClick = onSaveButtonClick,
             modifier = Modifier.fillMaxWidth(),

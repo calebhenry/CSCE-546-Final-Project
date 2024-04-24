@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -45,8 +46,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Divider
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.graphics.Color
+import com.example.taskmanager.data.DateUtils
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -57,6 +62,7 @@ object HomeDestination : NavigationDestination {
     override val titleRes = R.string.home_title
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeScreen(
@@ -67,18 +73,27 @@ fun HomeScreen(
 ) {
     val uiState = viewModel.homeUiState.collectAsState()
     val tasks = uiState.value.taskList
-    val groupedCompleteTasks = tasks.filter { it.taskCompletion }.sortedBy { it.dueDate }.groupBy { convertMillisToString(it.dueDate) }
-    val groupedIncompleteTasks = tasks.filter { !it.taskCompletion }.sortedBy { it.dueDate }.groupBy { convertMillisToString(it.dueDate) }
+    val groupedCompleteTasks = tasks.filter { it.taskCompletion }.sortedBy { it.dueDate }.groupBy { DateUtils.convertMillisToString(it.dueDate) }
+    val groupedIncompleteTasks = tasks.filter { !it.taskCompletion }.sortedBy { it.dueDate }.groupBy { DateUtils.convertMillisToString(it.dueDate) }
     val activity = LocalContext.current as Activity
 
     var showCompletedTasks by remember { mutableStateOf(false) }
 
     Scaffold (
         topBar = {
-            AppBar(
-                title = stringResource(id = R.string.home_title),
-                canNavigateBack = false,
-                navigateUp = { activity.finish() }
+            val context = LocalContext.current
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                title = { Text(stringResource(id = R.string.home_title)) },
+                actions = {
+                    IconButton(onClick = { viewModel.shareTasks(context) }) {
+                        Icon(Icons.Default.Share, contentDescription = "Share")
+                    }
+                }
             )
         },
         floatingActionButton = {
@@ -167,6 +182,9 @@ fun HomeScreen(
                                 completeTask = { isComplete -> viewModel.handleCheck(complete = isComplete, task = task) }
                             )
                         }
+                        item {
+                            Spacer(modifier = Modifier.height(25.dp))
+                        }
                     }
                 }
             }
@@ -201,20 +219,21 @@ fun RoutineCard(
     completeTask: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card (
+    Card(
         elevation = CardDefaults.cardElevation(5.dp),
         onClick = { onRoutineClick(task) },
         modifier = Modifier.padding(8.dp)
     ) {
-        Row (modifier = Modifier
-            .fillMaxWidth()
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
         ) {
             Checkbox(
                 checked = task.taskCompletion,
                 onCheckedChange = completeTask,
                 modifier = Modifier.align(Alignment.CenterVertically)
             )
-            Column (
+            Column(
                 modifier = Modifier
                     //.height(150.dp)
                     .fillMaxWidth()
@@ -237,12 +256,4 @@ fun RoutineCard(
         }
 
     }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-fun convertMillisToString(millis: Long): String {
-    val instant = Instant.ofEpochMilli(millis)
-    val zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.of("Z"))
-    val formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy")
-    return formatter.format(zonedDateTime)
 }
