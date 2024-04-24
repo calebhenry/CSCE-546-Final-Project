@@ -14,9 +14,11 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.taskmanager.ui.home.HomeDestination
 import com.example.taskmanager.ui.home.HomeScreen
 import com.example.taskmanager.ui.routine.TaskEntryDestination
@@ -39,7 +41,7 @@ fun TaskNavHost(
         ) {
             HomeScreen(
                 navigateToRoutineEntry = {navController.navigate("task entry")},
-                navigateToTaskScreen = {navController.navigate("task screen")}
+                navigateToTaskScreen = {navController.navigate("${TaskScreenDestination.route}/${it}")}
             )
         }
         composable(
@@ -51,10 +53,13 @@ fun TaskNavHost(
             )
         }
         composable (
-            route = TaskScreenDestination.route
+            route = TaskScreenDestination.routeWithArgs,
+            arguments = listOf(navArgument(TaskScreenDestination.taskIdArg) {
+                type = NavType.LongType
+            })
         ) {
             TaskScreen(
-                navigateBack = { navController.popBackStack() }
+                navigateBack = { navController.navigateUp() }
             )
         }
     }
