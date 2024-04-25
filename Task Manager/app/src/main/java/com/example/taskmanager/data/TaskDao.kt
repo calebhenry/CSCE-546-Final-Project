@@ -15,6 +15,9 @@ interface TaskDao {
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun update(task: Task)
 
+    @Query("DELETE from tasks where id = :id")
+    suspend fun deleteTask(id: Long)
+
     @Query("SELECT * from tasks where id = :id")
     fun getTask(id: Long): Flow<Task>
 

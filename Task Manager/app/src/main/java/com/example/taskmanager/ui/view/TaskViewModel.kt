@@ -57,6 +57,12 @@ class TaskViewModel(
             )
         )
     }
+
+    fun deleteTask() {
+        viewModelScope.launch {
+            taskRepository.deleteTask(id);
+        }
+    }
 }
 
 data class CurrentTaskUiState (

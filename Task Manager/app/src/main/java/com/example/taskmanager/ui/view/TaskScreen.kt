@@ -10,19 +10,30 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.taskmanager.R
+import com.example.taskmanager.data.DateUtils
 import com.example.taskmanager.data.Task
 import com.example.taskmanager.navigation.AppBar
 import com.example.taskmanager.navigation.NavigationDestination
@@ -39,6 +50,7 @@ object TaskScreenDestination : NavigationDestination {
     val routeWithArgs = "$route/{$taskIdArg}"
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TaskScreen (
@@ -53,10 +65,27 @@ fun TaskScreen (
 
     Scaffold(
         topBar = {
-            AppBar(
-                title = currentTaskName,
-                canNavigateBack = true,
-                navigateUp = { navigateBack() }
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                title = { Text(currentTaskName) },
+                actions = {
+                    IconButton(onClick = {
+                        viewModel.deleteTask()
+                        navigateBack()
+                    }) {
+                        Icon(Icons.Default.Delete, contentDescription = "Delete")
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navigateBack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                }
             )
         }
     ) {innerPadding ->
@@ -72,7 +101,7 @@ fun TaskScreen (
             Text(
                 modifier = Modifier.fillMaxWidth()
                     .padding(top = 5.dp, bottom = 5.dp)
-                    .background(Color.LightGray, MaterialTheme.shapes.small).padding(8.dp),
+                    .background(Color.LightGray, MaterialTheme.shapes.large).padding(8.dp),
                 text = currentTaskDescription
             )
             Row(
@@ -80,7 +109,7 @@ fun TaskScreen (
             ) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = "Due Date: ${convertMillisToString(currentTaskDueDate)}",
+                    text = "Due Date: ${DateUtils.convertMillisToString(currentTaskDueDate)}",
                     fontSize = 24.sp
                 )
             }
@@ -106,12 +135,4 @@ fun TaskScreen (
             }
         }
     }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-fun convertMillisToString(millis: Long): String {
-    val instant = Instant.ofEpochMilli(millis)
-    val zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.of("Z"))
-    val formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy")
-    return formatter.format(zonedDateTime)
 }

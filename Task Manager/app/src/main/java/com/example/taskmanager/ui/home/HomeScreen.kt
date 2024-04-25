@@ -4,6 +4,7 @@ import android.app.Activity
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -51,6 +52,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import com.example.taskmanager.data.DateUtils
 import java.time.Instant
 import java.time.ZoneId
@@ -77,7 +79,7 @@ fun HomeScreen(
     val groupedIncompleteTasks = tasks.filter { !it.taskCompletion }.sortedBy { it.dueDate }.groupBy { DateUtils.convertMillisToString(it.dueDate) }
     val activity = LocalContext.current as Activity
 
-    var showCompletedTasks by remember { mutableStateOf(false) }
+    var showCompletedTasks by remember { mutableStateOf(true) }
 
     Scaffold (
         topBar = {
@@ -113,47 +115,67 @@ fun HomeScreen(
             LazyColumn (
                 modifier = Modifier.padding(innerPadding),
             ) {
-                groupedIncompleteTasks.forEach { (date, tasks) ->
+                if(groupedIncompleteTasks.isEmpty()) {
                     item {
                         Box (
-                            Modifier
-                                .padding(8.dp)
-                                .align(Alignment.CenterHorizontally)
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Box(
-                                modifier = Modifier.background(Color.LightGray, MaterialTheme.shapes.large)
-                            ) {
-                                Text(
-                                    text = date,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    modifier = Modifier.padding(4.dp)
-                                )
-                            }
+                            Text(
+                                text = "Nothing left to do right now, add a task to begin!",
+                                modifier = Modifier.padding(16.dp),
+                            )
                         }
                     }
-                    items(tasks) { task ->
-                        RoutineCard(
-                            task = task,
-                            onRoutineClick = { navigateToTaskScreen(task.id) },
-                            completeTask = { isComplete -> viewModel.handleCheck(complete = isComplete, task = task) }
-                        )
+                } else {
+                    groupedIncompleteTasks.forEach { (date, tasks) ->
+                        item {
+                            Box (
+                                Modifier
+                                    .padding(8.dp)
+                                    .align(Alignment.CenterHorizontally)
+                            ) {
+                                Box(
+                                    modifier = Modifier.background(Color.LightGray, MaterialTheme.shapes.large)
+                                ) {
+                                    Text(
+                                        text = date,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.padding(4.dp)
+                                    )
+                                }
+                            }
+                        }
+                        items(tasks) { task ->
+                            RoutineCard(
+                                task = task,
+                                onRoutineClick = { navigateToTaskScreen(task.id) },
+                                completeTask = { isComplete -> viewModel.handleCheck(complete = isComplete, task = task) }
+                            )
+                        }
                     }
                 }
-                item {
-                    Divider(
-                        color = Color.LightGray,
-                        modifier = Modifier.padding(0.dp, 20.dp)
+                if(groupedCompleteTasks.isNotEmpty()) {
+                    item {
+                        Divider(
+                            color = Color.LightGray,
+                            modifier = Modifier.padding(0.dp, 20.dp)
 
-                    )
-                    Column (modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = "Completed",
-                            modifier = Modifier.padding(8.dp, 0.dp)
                         )
-                        ItemButton(
-                            expanded = showCompletedTasks,
-                            onClick = { showCompletedTasks = !showCompletedTasks }
-                        )
+                        Row (
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = "Completed",
+                                modifier = Modifier.padding(8.dp, 0.dp)
+                            )
+                            ItemButton(
+                                expanded = showCompletedTasks,
+                                onClick = { showCompletedTasks = !showCompletedTasks }
+                            )
+                        }
                     }
                 }
                 if(showCompletedTasks) {
