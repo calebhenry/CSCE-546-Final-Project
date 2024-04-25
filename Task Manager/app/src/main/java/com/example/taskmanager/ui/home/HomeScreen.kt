@@ -77,7 +77,6 @@ fun HomeScreen(
     val tasks = uiState.value.taskList
     val groupedCompleteTasks = tasks.filter { it.taskCompletion }.sortedBy { it.dueDate }.groupBy { DateUtils.convertMillisToString(it.dueDate) }
     val groupedIncompleteTasks = tasks.filter { !it.taskCompletion }.sortedBy { it.dueDate }.groupBy { DateUtils.convertMillisToString(it.dueDate) }
-    val activity = LocalContext.current as Activity
 
     var showCompletedTasks by remember { mutableStateOf(true) }
 

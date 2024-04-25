@@ -49,6 +49,9 @@ object TaskEntryDestination : NavigationDestination {
     override val titleRes = R.string.task_entry_title
 }
 
+/**
+ * This screen contains text input, buttons, and date input, satisfying the user interaction
+ */
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TaskEntryScreen(

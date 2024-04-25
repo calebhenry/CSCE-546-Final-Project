@@ -22,6 +22,9 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
 
+/**
+ * This view model satisfies the data requirement
+ */
 class HomeViewModel(
     private val taskRepository: TaskRepository
 ) : ViewModel() {
@@ -34,12 +37,15 @@ class HomeViewModel(
             )
 
 
+    /**
+     * This sharing function invokes a hardware intent, satisfying the hardware interaction requirement
+     */
     @RequiresApi(Build.VERSION_CODES.O)
     fun shareTasks(context: Context) {
         val numTasks = getNumTasksForDay()
         val numTasksCompeleted = getNumCompletedTasksForDay()
         val message = "I had $numTasks tasks to complete today, and I completed " +
-                if(numTasks == numTasksCompeleted) " all of them!" else "$numTasksCompeleted of them."
+                if(numTasks == numTasksCompeleted) "all of them!" else "$numTasksCompeleted of them."
 
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"

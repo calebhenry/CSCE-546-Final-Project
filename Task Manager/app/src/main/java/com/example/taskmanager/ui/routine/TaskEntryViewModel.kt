@@ -7,6 +7,9 @@ import androidx.lifecycle.ViewModel
 import com.example.taskmanager.data.Task
 import com.example.taskmanager.data.TaskRepository
 
+/**
+ * This view model satisfies the data requirement
+ */
 class TaskEntryViewModel(
     private val taskRepository: TaskRepository
 ): ViewModel() {

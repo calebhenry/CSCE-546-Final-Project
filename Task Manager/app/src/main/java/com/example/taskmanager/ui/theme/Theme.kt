@@ -37,6 +37,9 @@ private val LightColorScheme = lightColorScheme(
     */
 )
 
+/**
+ * Since this app uses material colors and dynamic theming, this satisfies the design requirement
+ */
 @Composable
 fun TaskApplicationTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),

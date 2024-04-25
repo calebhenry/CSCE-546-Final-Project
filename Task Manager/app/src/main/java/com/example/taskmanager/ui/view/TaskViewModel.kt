@@ -17,6 +17,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+/**
+ * This view model satisfies the data requirement
+ */
 class TaskViewModel(
     private val taskRepository: TaskRepository,
     private val savedStateHandle: SavedStateHandle

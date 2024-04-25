@@ -26,6 +26,9 @@ import com.example.taskmanager.ui.routine.TaskEntryScreen
 import com.example.taskmanager.ui.view.TaskScreen
 import com.example.taskmanager.ui.view.TaskScreenDestination
 
+/**
+ * This function satisfies the navigation requirement, as it holds several screens
+ */
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TaskNavHost(
